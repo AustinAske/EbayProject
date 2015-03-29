@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+	<title>eBay like store</title>
+	<link rel="stylesheet" href="MainStyle.css">		
+		
+		
+	</head>
+
+<body style="margin:0;">
+	
+	<div id="title">
+		<h2>Auction Time</h2>
+	</div>
+	
+	
+	
+	<div id="nav">
+		<div>
+			<a href="favorites.html">Favorites</a>
+		</div>
+		<div>
+			<a href="shop.html">Shop</a>
+		</div>
+		<div>
+			<a href="account.html">Account</a>
+		</div>
+		<div>
+			<a href="histroy.html">History</a>
+		</div>
+	</div>
+	
+	<div id="section">
+		<div id="add_item_frame">
+			<h3>Start New Auction</h3>
+			<hr />
+			<form id="add_item_form" action="/submit" method="post">
+			<div id="item_info_frame">
+				<div>
+					<label for="item_name">Product:</label>
+					<input type="text" id="item_name" name="product" />	
+				</div>
+				<div>
+					<label for="item_price">Price: </label>
+					<input type="text" id="item_price" name="price" />
+				</div>
+				<div>
+					<label for="item_auction_end">Auction closes at:</label>
+					<input type="text" id="item_auction_end" name="end_date" />
+				</div>
+			</div>
+			<div id="item_description_frame">
+				<div>Description:</div>
+				<textarea name="description" id="item_description"></textarea>
+				<input id="item_submit" type="submit" name="submit" value="Submit" />
+			</div>
+			</form>
+		</div>
+	</div>
+	
+	<div id="footer">
+		WSU CS351 Web Store Project<br>
+		By: Cameron Heil &amp; Austin Aske
+	</div>
+		
+	
+	
+</body>
+</html>
