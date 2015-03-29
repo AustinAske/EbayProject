@@ -17,7 +17,11 @@ func home(writer http.ResponseWriter, request *http.Request) {
 }
 
 func shop(writer http.ResponseWriter, request *http.Request) {
-	http.ServeFile(writer, request, request.URL.Path[1:])
+	http.ServeFile(writer, request, request.URL.Path[1:] + ".html")
+}
+
+func post(writer http.ResponseWriter, request *http.Request) {
+	http.ServeFile(writer, request, request.URL.Path[1:] + ".html")
 }
 
 func addAuction(writer http.ResponseWriter, request *http.Request) {
@@ -52,7 +56,8 @@ func testDb() {
 func main() {
 
 	testDb()
-	http.HandleFunc("/", home) // respond to any file path
+	http.HandleFunc("/" , home) // respond to any file path
+	http.HandleFunc("/post" , post) // respond to any file path
 	http.HandleFunc("/shop", shop)
 	http.HandleFunc("/submit", addAuction)
 	http.ListenAndServe(":8000", nil)
