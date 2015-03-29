@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+// 	"fmt"
 // 	"io"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
@@ -26,17 +26,16 @@ func post(writer http.ResponseWriter, request *http.Request) {
 
 func addAuction(writer http.ResponseWriter, request *http.Request) {
 	request.ParseForm() // parse form data into json element
-	fmt.Fprintf(writer, "Post request sent to server\n%q",request)
+// 	fmt.Fprintf(writer, "Post request sent to server\n%q",request)
+	err = db.Ping()
+	if err != nil {
+		    panic(err.Error()) // proper error handling instead of panic in your app
+		}	
+	
+	http.Redirect(writer, request, "/shop", 302)
 }
 
-func testDb() {
- 
- 	db, err := sql.Open("mysql", "Austin:@tcp(localhost:3306)/ebay_store")
-    	if err != nil {
-        	panic(err.Error())  // Just for example purpose. You should use proper error handling instead of panic
-    	}
-		defer db.Close()
-	
+
 /*
 	// Open doesn't open a connection. Validate DSN data:
 	err = db.Ping()
@@ -51,13 +50,17 @@ func testDb() {
 	}
 */
 		
-}
 
 func main() {
 
-	testDb()
-	http.HandleFunc("/" , home) // respond to any file path
-	http.HandleFunc("/post" , post) // respond to any file path
+ 	db, err := sql.Open("mysql", "Austin:@tcp(localhost:3306)/ebay_store")
+    	if err != nil {
+        	panic(err.Error())  // Just for example purpose. You should use proper error handling instead of panic
+    	}
+		defer db.Close()
+	
+	http.HandleFunc("/", home) // respond to any file path
+	http.HandleFunc("/post", post) // respond to any file path
 	http.HandleFunc("/shop", shop)
 	http.HandleFunc("/submit", addAuction)
 	http.ListenAndServe(":8000", nil)
