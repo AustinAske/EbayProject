@@ -28,13 +28,34 @@ func post(writer http.ResponseWriter, request *http.Request) {
 
 func addAuction(writer http.ResponseWriter, request *http.Request) {
 	// parse form data into json element
-// 	fmt.Fprintf(writer, "Post request sent to server\n%q",request)
-	err = Db.Ping()
+	request.ParseForm()
+	// 	Open Database connection
+	Db, err := sql.Open("mysql", "Austin:@tcp(localhost:3306)/ebay_store")
 	if err != nil {
-		    panic(err.Error()) // proper error handling instead of panic in your app
-		}	
+        panic(err.Error())  // Just for example purpose. You should use proper error handling instead of panic
+	}
+	defer Db.Close()
 	
-	http.Redirect(writer, request, "/shop", 302)
+	// 	create prepare statement
+	addItemStmt, err := Db.Prepare("INSERT INTO Auctions(name, category, description, starting_bid) VALUES( ?, ?, ?, ?)")
+	if err!= nil {
+		panic(err.Error())
+	}
+	
+	itemName := request.PostFormValue("item_name")
+	category := request.PostFormValue("item_category")
+	description := request.PostFormValue("item_description")
+// 	endTime := request.PostFormValue("end_time")
+	startingBid := request.PostFormValue("starting_bid")
+	
+	_, err = addItemStmt.Exec(itemName, category, description, startingBid)
+	if err != nil{
+		panic(err.Error())
+	}
+		http.Redirect(writer, request, "/shop", 302)
+		
+// 		fmt.Fprintf(writer, "Post request sent to server\n%q",request)	
+	
 }
 
 
@@ -54,12 +75,6 @@ func addAuction(writer http.ResponseWriter, request *http.Request) {
 		
 
 func main() {
-
- 	Db, err := sql.Open("mysql", "Austin:@tcp(localhost:3306)/ebay_store")
-    	if err != nil {
-        	panic(err.Error())  // Just for example purpose. You should use proper error handling instead of panic
-    	}
-		defer Db.Close()
 	
 	http.HandleFunc("/", home) // respond to any file path
 	http.HandleFunc("/post", post) // respond to any file path

@@ -38,20 +38,27 @@
 			<div id="item_info_frame">
 				<div>
 					<label for="item_name">Product:</label>
-					<input type="text" id="item_name" name="product" />	
+					<input type="text" id="item_name" name="item_name" />	
 				</div>
 				<div>
-					<label for="item_price">Price: </label>
-					<input type="text" id="item_price" name="price" />
+					<label for="item_category">Category</label>
+					<select name="item_category" id="item_category" form="add_item_form">
+						<option name="Misc">Misc</option>
+						<option name="Automobile">Automobile</option>
+					</select>
 				</div>
 				<div>
-					<label for="item_auction_end">Auction closes at:</label>
-					<input type="text" id="item_auction_end" name="end_date" />
+					<label for="item_price">Starting Bid: </label>
+					<input type="text" id="item_price" name="starting_bid" />
+				</div>
+				<div>
+					<label for="item_auction_end">Auction closing Time:</label>
+					<input type="text" id="item_auction_end" name="end_time" />
 				</div>
 			</div>
 			<div id="item_description_frame">
 				<div>Description:</div>
-				<textarea name="description" id="item_description"></textarea>
+				<textarea name="item_description" id="item_description"></textarea>
 				<input id="item_submit" type="submit" name="submit" value="Submit" />
 			</div>
 			</form>
