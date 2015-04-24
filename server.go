@@ -23,6 +23,9 @@ var Db sql.DB
 var connectionString = "Austin:@tcp(localhost:3306)/ebay_store"
 
 
+shopTemplete := template.Must(ParseFiles("shop.html", "Templates/*")
+
+
 // servers static pages in file structure
 func home(writer http.ResponseWriter, request *http.Request) {
         http.ServeFile(writer, request, request.URL.Path[1:])    
@@ -32,7 +35,6 @@ func shop(writer http.ResponseWriter, request *http.Request) {
 // 	http.ServeFile(writer, request, request.URL.Path[1:] + ".html")	
 
 	
-	shopTemplete, err := template.ParseFiles("shop.html", "Templates/*")
 	if(err != nil){
         http.Error(writer, err.Error(), http.StatusInternalServerError)
 	}
