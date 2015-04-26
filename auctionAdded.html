@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{define "auctionAdded"}}
 <html lang="en-US">
 	<head>
 	<title>eBay like store</title>
@@ -16,7 +16,7 @@
 	
 	
 	<div id="nav">
-		<div>
+	<div>
 			<a href="/post">Post</a>
 		</div>
 		<div>
@@ -31,13 +31,12 @@
 		<div>
 			Current time: <input name="currentTime" type="time" value="13:30:00" form="add_item_form">
 		</div>
-
 	</div>
 	
 	<div id="section">
-		<div id="auction_products">
-			<h3> Current Auctions</h3>
-			{{Template "shipItem"}}	
+		<div id="add_item_frame">
+			<h3>{{Template "shopItem"}}</h3>
+			
 		</div>
 	</div>
 	
@@ -45,8 +44,6 @@
 		WSU CS351 Web Store Project<br>
 		By: Cameron Heil &amp; Austin Aske
 	</div>
-		
-	
-	
 </body>
 </html>
+{{end}}

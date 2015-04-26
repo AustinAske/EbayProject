@@ -23,7 +23,7 @@ var Db sql.DB
 var connectionString = "Austin:@tcp(localhost:3306)/ebay_store"
 
 
-shopTemplete := template.Must(ParseFiles("shop.html", "Templates/*")
+var Templates = template.Must(template.ParseFiles("shop.html", "auctionAdded.html", "Templates/*"))
 
 
 // servers static pages in file structure
@@ -34,10 +34,6 @@ func home(writer http.ResponseWriter, request *http.Request) {
 func shop(writer http.ResponseWriter, request *http.Request) {
 // 	http.ServeFile(writer, request, request.URL.Path[1:] + ".html")	
 
-	
-	if(err != nil){
-        http.Error(writer, err.Error(), http.StatusInternalServerError)
-	}
 		// 	Open Database connection
 	Db, err := sql.Open("mysql", connectionString)
 	if err != nil {
@@ -57,7 +53,7 @@ func shop(writer http.ResponseWriter, request *http.Request) {
 				results.Scan(&auctions.Name, &auctions.StartingBid, &auctions.Description) // get rows from query
 	}
 
-	shopTemplete.Execute(writer, auctions)
+	Templates.ExecuteTemplate(writer, "shop" ,auctions)
 
 }
 
@@ -89,31 +85,18 @@ func addAuction(writer http.ResponseWriter, request *http.Request) {
 	startingBid := request.PostFormValue("starting_bid")
 	openTime := request.PostFormValue("currentTime")
 	
+	auctions := AuctionItem{Name: itemName}
+
 	_, err = addItemStmt.Exec(itemName, category, description, startingBid, openTime)
 	if err != nil{
 		panic(err.Error())
 	}
-		http.Redirect(writer, request, "/shop", 302)
+	addedItem ,err := Templates.ExecuteTemplate(writer, "auctionAdded", auctions) 
+	http.Redirect(writer, request, "/shop", 302)
 		
 // 		fmt.Fprintf(writer, "Post request sent to server\n%q",request)	
 	
 }
-
-
-/*
-	// Open doesn't open a connection. Validate DSN data:
-	err = db.Ping()
-	if err != nil {
-	    panic(err.Error()) // proper error handling instead of panic in your app
-	}
-	
-// 	Test the database conneciton by sending data to it!! WORKED!!!
-	result, err := db.Exec("INSERT INTO `Customers` (`id`, `name`, `email`) VALUES(NULL, 'Jazzy John', 'Jazzy@google.com');")	
-	if err != nil {
-		panic(err.Error())
-	}
-*/
-		
 
 func main() {
 	
