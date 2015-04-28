@@ -23,7 +23,7 @@ var Db sql.DB
 var connectionString = "Austin:@tcp(localhost:3306)/ebay_store"
 
 
-var Templates = template.Must(template.ParseFiles("shop.html", "auctionAdded.html", "templates/shopItem.html"))
+var Templates = template.Must(template.ParseFiles("shop.html", "auctionAdded.html", "history.html", "templates/shopItem.html"))
 
 
 // servers static pages in file structure
@@ -99,12 +99,37 @@ func addAuction(writer http.ResponseWriter, request *http.Request) {
 	
 }
 
+// testing state
+func history(writer http.ResponseWriter, request *http.Request) {
+		// 	Open Database connection
+	Db, err := sql.Open("mysql", connectionString)
+	if err != nil {
+        http.Error(writer, err.Error(), http.StatusInternalServerError)
+	}
+	defer Db.Close()
+	
+	results, err := Db.Query("SELECT name,format(starting_bid,2),description FROM Auctions Limit 5;") // where close time is < current time
+	if err != nil{
+        http.Error(writer, err.Error(), http.StatusInternalServerError)
+	}
+	defer results.Close()
+	
+	var auctions AuctionItem
+
+	for results.Next(){
+		results.Scan(&auctions.Name, &auctions.StartingBid, &auctions.Description) // get rows from query
+	}
+	
+	Templates.ExecuteTemplate(writer, "history", auctions)
+}
+
 func main() {
 	
 	
 	http.HandleFunc("/", home) // respond to any file path
 	http.HandleFunc("/post", post) // respond to any file path
 	http.HandleFunc("/shop", shop)
+	http.HandleFunc("/history", history)
 	http.HandleFunc("/submit", addAuction)
 	http.ListenAndServe(":8000", nil)
 }

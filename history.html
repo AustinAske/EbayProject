@@ -1,4 +1,4 @@
-{{define "shop"}}
+{{define "history"}}
 <html lang="en-US">
 	<head>
 	<title>eBay like store</title>
@@ -16,7 +16,7 @@
 	
 	
 	<div id="nav">
-		<div>
+	<div>
 			<a href="/post">Post</a>
 		</div>
 		<div>
@@ -31,14 +31,14 @@
 		<div>
 			Current time: <input name="currentTime" type="time" value="13:30:00" form="add_item_form">
 		</div>
-
 	</div>
 	
 	<div id="section">
-		<div id="auction_products">
-			<h3> Current Auctions</h3>
-			{{template "shopItem" .}}	
+		<div id="add_item_frame">
+			<h3>History</h3>
+			
 		</div>
+		{{range .}}{{template "shopItem" .[0]}}{{end}}
 	</div>
 	
 	<div id="footer">
