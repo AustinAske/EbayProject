@@ -1,7 +1,7 @@
 package main
 
 import (
-// 	"fmt"
+	"fmt"
 // 	"io"
 // 	"os"
 	"html/template"
@@ -108,20 +108,25 @@ func history(writer http.ResponseWriter, request *http.Request) {
 	}
 	defer Db.Close()
 	
-	results, err := Db.Query("SELECT name,format(starting_bid,2),description FROM Auctions Limit 5;") // where close time is < current time
+	results, err := Db.Query("SELECT name,format(starting_bid,2),description FROM Auctions Limit 3;") // where close time is < current time
 	if err != nil{
         http.Error(writer, err.Error(), http.StatusInternalServerError)
 	}
 	defer results.Close()
 	
-	var auctions AuctionItem
+	var auctions [5]AuctionItem
 
+	i := 0
 	for results.Next(){
-		results.Scan(&auctions.Name, &auctions.StartingBid, &auctions.Description) // get rows from query
+		
+		results.Scan(&auctions[i].Name, &auctions[i].StartingBid, &auctions[i].Description) // get rows from query				
+		fmt.Printf("%s\n", auctions[i].Name)
+		i++
 	}
-	
-	Templates.ExecuteTemplate(writer, "history", auctions)
+
+	Templates.ExecuteTemplate(writer, "history", auctions[0])
 }
+
 
 func main() {
 	
