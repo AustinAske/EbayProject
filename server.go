@@ -23,7 +23,7 @@ var Db sql.DB
 var connectionString = "Austin:@tcp(localhost:3306)/ebay_store"
 
 
-var Templates = template.Must(template.ParseFiles("shop.html", "auctionAdded.html", "Templates/*"))
+var Templates = template.Must(template.ParseFiles("shop.html", "auctionAdded.html", "templates/shopItem.html"))
 
 
 // servers static pages in file structure
@@ -50,7 +50,7 @@ func shop(writer http.ResponseWriter, request *http.Request) {
 	var auctions AuctionItem
 
 	for results.Next(){
-				results.Scan(&auctions.Name, &auctions.StartingBid, &auctions.Description) // get rows from query
+		results.Scan(&auctions.Name, &auctions.StartingBid, &auctions.Description) // get rows from query
 	}
 
 	Templates.ExecuteTemplate(writer, "shop" ,auctions)
@@ -91,8 +91,9 @@ func addAuction(writer http.ResponseWriter, request *http.Request) {
 	if err != nil{
 		panic(err.Error())
 	}
-	addedItem ,err := Templates.ExecuteTemplate(writer, "auctionAdded", auctions) 
-	http.Redirect(writer, request, "/shop", 302)
+	
+	Templates.ExecuteTemplate(writer, "auctionAdded", auctions) 
+// 	http.Redirect(writer, request, "/shop", 302)
 		
 // 		fmt.Fprintf(writer, "Post request sent to server\n%q",request)	
 	
