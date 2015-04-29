@@ -1,22 +1,43 @@
 {{define "shopItem"}}
+{{range .}}
 
-{{ $auctions := .}}
-{{range $auction := $auctions}}
-<div class="product_view">
+<div id="bid_frame">
 	<div class="product_image_frame">
 	</div>
 	<div class="product_description_frame">
 		<div class="product_description_name">
-			<b>{{$auction.Name}}</b>
+			<b>{{.Name}}</b>
 		</div>
 		<div class="product_short_description">
-			{{$auction.Description}}
+			{{.Description}}
 		</div>
 		<div class="product_current_price">
-			Current Bid: <b>${{$auction.StartingBid}}</b>
+			Current Bid: <b>${{.StartingBid}}</b>
 		</div>
+		<div id="bid_outer_frame">
+	
+	<h3>Place a Bid</h3>
+	<hr>
+	<form id="place_bid_form" action="/updateBid" method="post">
+		<input type="text" style="display:none;" name="auction_id" value="{{.Id}}" />
+		<div id="bid_form_frame">
+			<div>
+				<label for="bid_uname">Your Name</label>
+				<input type="text" name="bid_uname" id="bid_uname">
+			</div>
+			<div>
+				<label for="bid_amount">Bid amount</label>
+				<input type="text" name="bid_amount" id="bid_amount">
+			</div>
+			<div>
+				<input id="item_submit" type="submit" name="submit" value="Submit">
+			</div>
+		</div>
+	</form>
+</div>
 		
 	</div>
 </div>
 {{end}}
 {{end}}
+

@@ -29,7 +29,7 @@
 			<a href="/history">History</a>
 		</div>
 		<div>
-			Current time: <input name="currentTime" type="time" value="13:30:00" form="add_item_form">
+			Current time: <input name="currentTime" type="time" value="13:30:00" form="add_item_form" form="place_bid_form">
 		</div>
 	</div>
 	
@@ -38,7 +38,16 @@
 			<h3>History</h3>
 			
 		</div>
-		{{template "shopItem" .}}
+		<table class="reference" style="width:100%">
+			<tbody><tr>
+				<th>Number</th>
+				<th>Starting Bid</th>
+				<th>Winner</th>		
+				<th>Final Cost</th>
+			</tr>
+			{{template "table" .}}
+			</tbody>
+		</table>
 	</div>
 	
 	<div id="footer">
