@@ -1,3 +1,4 @@
+{{define "post"}}
 <html lang="en-US">
 	<head>
 	<title>eBay like store</title>
@@ -28,7 +29,13 @@
 			<a href="/history">History</a>
 		</div>
 		<div>
-			Current time: <input name="currentTime" type="time" value="13:30:00" form="add_item_form">
+			
+			Current time:
+				<form id="set_time" action="/setTime" method="post"> 
+					<input name="currentTime" type="time" value="{{.}}" form="set_time" form="add_item_form">
+					<input id="set_time" type="submit" name="submit" value="Set Time" />
+				</form>
+
 		</div>
 
 	</div>
@@ -51,12 +58,12 @@
 					</select>
 				</div>
 				<div>
-					<label for="item_price">Starting Bid: </label>
-					<input type="text" id="item_price" name="starting_bid" />
+					<label for="item_price">Buy Now Price: </label>
+					<input type="text" id="buy_price" name="buy_price" />
 				</div>
 				<div>
 					<label for="item_auction_end">Auction closing Time:</label>
-					<input type="time" id="item_auction_end" name="end_time" />
+					<input type="time" id="close_time" name="close_time" />
 				</div>
 			</div>
 			<div id="item_description_frame">
@@ -77,4 +84,4 @@
 	
 </body>
 </html>
-
+{{end}}

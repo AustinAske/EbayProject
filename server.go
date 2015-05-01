@@ -16,15 +16,21 @@ import (
 type AuctionItem struct{
 	Id				int
 	Name			string
-	StartingBid		float32
+	BuyPrice		float32
 	Description 	string
+	CloseTime		string
+	CurrentTime 	string
+	CurrentPrice	float32
+	State			int
+	CustomerId		int
 }
 
+var currenttime = "1"
 var Db sql.DB
 var connectionString = "Austin:@tcp(localhost:3306)/ebay_store"
 
 
-var Templates = template.Must(template.ParseFiles("shop.html", "auctionAdded.html", "history.html", "templates/shopItem.html", "templates/table.html"))
+var Templates = template.Must(template.ParseFiles("shop.html", "post.html", "auctionAdded.html", "history.html", "templates/shopItem.html", "templates/table.html"))
 
 
 // servers static pages in file structure
@@ -51,24 +57,26 @@ func updateBid( writer http.ResponseWriter, request *http.Request){
 	price := request.PostFormValue("bid_amount")
 	customer_id := 1
 	auction_id := request.PostFormValue("auction_id")
-// 	endTime := request.PostFormValue("end_time")
 	customer_name := request.PostFormValue("bid_uname")
-	currentTime := request.PostFormValue("currentTime")
 	
-	_, err = addItemStmt.Exec(price, customer_id, auction_id, customer_name, currentTime)
+	_, err = addItemStmt.Exec(price, customer_id, auction_id, customer_name, currenttime)
 	if err != nil{
 		panic(err.Error())
 	}
-		fmt.Printf("%q", currentTime)
+		fmt.Printf("%q", currenttime)
 		http.Redirect(writer, request, "/shop", 302)
-
-	
-
 }
 
-func shop(writer http.ResponseWriter, request *http.Request) {
-// 	http.ServeFile(writer, request, request.URL.Path[1:] + ".html")	
+func setTime(writer http.ResponseWriter, request *http.Request){
+	request.ParseForm()
 
+	currenttime = request.PostFormValue("currentTime")
+	returnAddress := request.Referer()
+	fmt.Printf("Current Time changed to %s\n", currenttime)
+	http.Redirect(writer, request, returnAddress, 302)
+}
+
+func shop(writer http.ResponseWriter, request *http.Request) {	
 		// 	Open Database connection
 	Db, err := sql.Open("mysql", connectionString)
 	if err != nil {
@@ -76,7 +84,7 @@ func shop(writer http.ResponseWriter, request *http.Request) {
 	}
 	defer Db.Close()
 	
-	results, err := Db.Query("SELECT id, name,format(starting_bid,2),description FROM Auctions;") // where close time is < current time
+	results, err := Db.Query("Select Auctions.id, name, price, description, buy_price, close_time from (select * from Bids where timestamp <= ? order by price DESC)as max join Auctions on Auctions.id = max.`auction_id` where state = 0 group by `auction_id`;", currenttime) // where close time is < current time
 	if err != nil{
         http.Error(writer, err.Error(), http.StatusInternalServerError)
 	}
@@ -86,7 +94,8 @@ func shop(writer http.ResponseWriter, request *http.Request) {
 
 	for results.Next(){
 		var newResult AuctionItem
-		results.Scan(&newResult.Id, &newResult.Name, &newResult.StartingBid, &newResult.Description) // get rows from query		
+		newResult.CurrentTime = currenttime
+		results.Scan(&newResult.Id, &newResult.Name, &newResult.CurrentPrice, &newResult.Description, &newResult.BuyPrice, &newResult.CloseTime) // get rows from query		
 		auctions = append(auctions, newResult)
 	}
 
@@ -96,7 +105,7 @@ func shop(writer http.ResponseWriter, request *http.Request) {
 }
 
 func post(writer http.ResponseWriter, request *http.Request) {
-	http.ServeFile(writer, request, request.URL.Path[1:] + ".html")
+	Templates.ExecuteTemplate(writer, "post", currenttime)
 }
 
 func addAuction(writer http.ResponseWriter, request *http.Request) {
@@ -111,7 +120,7 @@ func addAuction(writer http.ResponseWriter, request *http.Request) {
 	defer Db.Close()
 	
 	// 	create prepare statement
-	addItemStmt, err := Db.Prepare("INSERT INTO Auctions(name, category, description, starting_bid, open_time) VALUES( ?, ?, ?, ?, ?)")
+	addItemStmt, err := Db.Prepare("INSERT INTO Auctions(name, category, description, buy_price, close_time) VALUES( ?, ?, ?, ?, ?)")
 	if err!= nil {
 		panic(err.Error())
 	}
@@ -119,21 +128,19 @@ func addAuction(writer http.ResponseWriter, request *http.Request) {
 	itemName := request.PostFormValue("item_name")
 	category := request.PostFormValue("item_category")
 	description := request.PostFormValue("item_description")
-// 	endTime := request.PostFormValue("end_time")
-	startingBid := request.PostFormValue("starting_bid")
-	openTime := request.PostFormValue("currentTime")
+	endTime := request.PostFormValue("close_time")
+	buyPrice := request.PostFormValue("buy_price")
 	
-	auctions := AuctionItem{Name: itemName}
+// 	auctions := AuctionItem{Name: itemName}
 
-	_, err = addItemStmt.Exec(itemName, category, description, startingBid, openTime)
+	_, err = addItemStmt.Exec(itemName, category, description, buyPrice, endTime)
 	if err != nil{
 		panic(err.Error())
 	}
-	
-	Templates.ExecuteTemplate(writer, "auctionAdded", auctions) 
-// 	http.Redirect(writer, request, "/shop", 302)
+	http.Redirect(writer, request, "/shop", 302)
+
+// 	Templates.ExecuteTemplate(writer, "", auctions) 
 		
-// 		fmt.Fprintf(writer, "Post request sent to server\n%q",request)	
 	
 }
 
@@ -146,7 +153,7 @@ func history(writer http.ResponseWriter, request *http.Request) {
 	}
 	defer Db.Close()
 	
-	results, err := Db.Query("SELECT name,format(starting_bid,2),description FROM Auctions Limit 3;") // where close time is < current time
+	results, err := Db.Query("Select Auctions.id, name, price, description, buy_price, timestamp, close_time, Auctions.state, customer_id from (select * from Bids where timestamp <= ?) as max join Auctions on Auctions.id = max.`auction_id` where customer_id is not NULL order by name, price DESC, timestamp DESC ;", currenttime) // where close time is < current time
 	if err != nil{
         http.Error(writer, err.Error(), http.StatusInternalServerError)
 	}
@@ -157,7 +164,8 @@ func history(writer http.ResponseWriter, request *http.Request) {
 // 	i := 0
 	for results.Next(){
 		var newResult AuctionItem
-		results.Scan(&newResult.Name, &newResult.StartingBid, &newResult.Description) // get rows from query		
+		newResult.CurrentTime = currenttime
+		results.Scan(&newResult.Id, &newResult.Name, &newResult.CurrentPrice, &newResult.Description, &newResult.BuyPrice, &newResult.CurrentTime, &newResult.CloseTime, &newResult.State, &newResult.CustomerId) // get rows from query		
 		auctions = append(auctions, newResult)
 
 // 		fmt.Printf("%s\n", auctions[i].Name)
@@ -175,6 +183,7 @@ func main() {
 	http.HandleFunc("/post", post) // respond to any file path
 	http.HandleFunc("/shop", shop)
 	http.HandleFunc("/updateBid", updateBid)
+	go http.HandleFunc("/setTime", setTime)
 	http.HandleFunc("/history", history)
 	http.HandleFunc("/submit", addAuction)
 	http.ListenAndServe(":8000", nil)

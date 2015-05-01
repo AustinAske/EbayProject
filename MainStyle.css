@@ -120,6 +120,27 @@ body{
 	border-top:1px solid #000;
 }
 
+#product_close_left {
+	text-fill-color: red;
+	float: right;
+}
+
+.reference {
+	text-align: center;
+	border: 1px solid black;
+	padding: 0px;
+}
+
+.reference th {
+	border: 1px solid black;
+	background-color: #ccc;
+}
+
+.reference td {
+	padding: 0px;
+
+}
+
 #bid_frame {
 	border:1px solid #000;
 	margin:10px;

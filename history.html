@@ -1,4 +1,5 @@
 {{define "history"}}
+{{$first := index . 0}}
 <html lang="en-US">
 	<head>
 	<title>eBay like store</title>
@@ -29,21 +30,29 @@
 			<a href="/history">History</a>
 		</div>
 		<div>
-			Current time: <input name="currentTime" type="time" value="13:30:00" form="add_item_form" form="place_bid_form">
+			Current time:
+				<form id="set_time" action="/setTime" method="post"> 
+					<input name="currentTime" type="time" value="{{$first.CurrentTime}}" form="set_time" form="add_item_form">
+					<input id="set_time" type="submit" name="submit" value="Set Time" />
+				</form>
 		</div>
 	</div>
 	
 	<div id="section">
-		<div id="add_item_frame">
+		<div>
 			<h3>History</h3>
 			
 		</div>
 		<table class="reference" style="width:100%">
 			<tbody><tr>
-				<th>Number</th>
-				<th>Starting Bid</th>
-				<th>Winner</th>		
-				<th>Final Cost</th>
+				<th>ID</th>
+				<th>Name</th>
+				<th>Bid Price</th>
+				<th>Description</th>		
+				<th>Buy Now Price</th>
+				<th>Time of Bid</th>
+				<th>Status</th>
+				<th>
 			</tr>
 			{{template "table" .}}
 			</tbody>
