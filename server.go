@@ -20,6 +20,7 @@ type AuctionItem struct{
 	Description 	string
 	CloseTime		string
 	CurrentTime 	string
+	BidTime			string
 	CurrentPrice	float32
 	State			int
 	CustomerId		int
@@ -49,23 +50,27 @@ func updateBid( writer http.ResponseWriter, request *http.Request){
 	defer Db.Close()
 	
 	// 	create prepare statement
-	addItemStmt, err := Db.Prepare("INSERT INTO Bids(price, customer_id, auction_id, customer_name, timestamp) VALUES( ?, ?, ?, ?, ?)")
-	if err!= nil {
-		panic(err.Error())
+	if currenttime < request.PostFormValue("currenttime"){
+		addItemStmt, err := Db.Prepare("INSERT INTO Bids(price, customer_id, auction_id, customer_name, timestamp) VALUES( ?, ?, ?, ?, ?)")
+		if err!= nil {
+			panic(err.Error())
+		}
+		
+		
+		price := request.PostFormValue("bid_amount")
+		customer_id := 1
+		auction_id := request.PostFormValue("auction_id")
+		customer_name := request.PostFormValue("bid_uname")
+		
+		_, err = addItemStmt.Exec(price, customer_id, auction_id, customer_name, currenttime)
+		if err != nil{
+			panic(err.Error())
+		}
 	}
-	
-	price := request.PostFormValue("bid_amount")
-	customer_id := 1
-	auction_id := request.PostFormValue("auction_id")
-	customer_name := request.PostFormValue("bid_uname")
-	
-	_, err = addItemStmt.Exec(price, customer_id, auction_id, customer_name, currenttime)
-	if err != nil{
-		panic(err.Error())
-	}
-		fmt.Printf("%q", currenttime)
 		http.Redirect(writer, request, "/shop", 302)
 }
+
+
 
 func setTime(writer http.ResponseWriter, request *http.Request){
 	request.ParseForm()
@@ -165,7 +170,7 @@ func history(writer http.ResponseWriter, request *http.Request) {
 	for results.Next(){
 		var newResult AuctionItem
 		newResult.CurrentTime = currenttime
-		results.Scan(&newResult.Id, &newResult.Name, &newResult.CurrentPrice, &newResult.Description, &newResult.BuyPrice, &newResult.CurrentTime, &newResult.CloseTime, &newResult.State, &newResult.CustomerId) // get rows from query		
+		results.Scan(&newResult.Id, &newResult.Name, &newResult.CurrentPrice, &newResult.Description, &newResult.BuyPrice, &newResult.BidTime, &newResult.CloseTime, &newResult.State, &newResult.CustomerId) // get rows from query		
 		auctions = append(auctions, newResult)
 
 // 		fmt.Printf("%s\n", auctions[i].Name)
