@@ -1,0 +1,14 @@
+{{define "table"}}
+{{range .}}
+<tr>
+	<td>{{.Id}}</td>
+	<td>{{.Name}}</td>
+	<td>{{.CurrentPrice}}</td>		
+	<td>{{.Description}}</td>
+	<td>{{.BuyPrice}}</td>
+	<td>{{.CurrentTime}}</td>
+	<td>{{if eq .State 1}}Closed{{else}}Open{{end}}</td>
+</tr>
+{{end}}
+{{end}}
+
