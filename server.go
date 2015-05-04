@@ -50,24 +50,23 @@ func updateBid( writer http.ResponseWriter, request *http.Request){
 	defer Db.Close()
 	
 	// 	create prepare statement
-	if currenttime < request.PostFormValue("currenttime"){
-		addItemStmt, err := Db.Prepare("INSERT INTO Bids(price, customer_id, auction_id, customer_name, timestamp) VALUES( ?, ?, ?, ?, ?)")
-		if err!= nil {
-			panic(err.Error())
-		}
-		
-		
-		price := request.PostFormValue("bid_amount")
-		customer_id := 1
-		auction_id := request.PostFormValue("auction_id")
-		customer_name := request.PostFormValue("bid_uname")
-		
-		_, err = addItemStmt.Exec(price, customer_id, auction_id, customer_name, currenttime)
-		if err != nil{
-			panic(err.Error())
-		}
+	addItemStmt, err := Db.Prepare("INSERT INTO Bids(price, auction_id, customer_name, timestamp) VALUES( ?, ?, ?, ?)")
+	if err!= nil {
+		panic(err.Error())
 	}
-		http.Redirect(writer, request, "/shop", 302)
+	defer addItemStmt.Close()
+	
+	
+	price := request.PostFormValue("bid_amount")
+// 		customer_name := request.PostFormValue("bid_uname")
+	auction_id := request.PostFormValue("auction_id")
+	customer_name := request.PostFormValue("bid_uname")
+	
+	_, err = addItemStmt.Exec(price, auction_id, customer_name, currenttime)
+	if err != nil{
+		panic(err.Error())
+	}
+	http.Redirect(writer, request, "/shop", 302)
 }
 
 
@@ -77,6 +76,22 @@ func setTime(writer http.ResponseWriter, request *http.Request){
 
 	currenttime = request.PostFormValue("currentTime")
 	returnAddress := request.Referer()
+	
+			// 	Open Database connection
+	Db, err := sql.Open("mysql", connectionString)
+	if err != nil {
+        panic(err.Error())  // Just for example purpose. You should use proper error handling instead of panic
+	}
+	defer Db.Close()
+	
+	// 	create prepare statement
+	changeTimeStmt, err := Db.Prepare("UPDATE Time SET current = ?")
+	if err!= nil {
+		panic(err.Error())
+	}
+	defer changeTimeStmt.Close()
+	
+	changeTimeStmt.Exec(currenttime)
 	fmt.Printf("Current Time changed to %s\n", currenttime)
 	http.Redirect(writer, request, returnAddress, 302)
 }
