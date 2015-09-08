@@ -28,7 +28,7 @@ type AuctionItem struct{
 
 var currenttime = "1"
 var Db sql.DB
-var connectionString = "Austin:@tcp(localhost:3306)/ebay_store"
+var connectionString = ""
 
 
 var Templates = template.Must(template.ParseFiles("shop.html", "post.html", "auctionAdded.html", "history.html", "templates/shopItem.html", "templates/table.html"))
